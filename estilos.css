@@ -1,0 +1,187 @@
+/* --- Fondo general oscuro --- */
+body {
+    background-color: #0f0f13 !important;
+    color: #fff !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- DISEÑO DEL LOGIN Y REGISTRO  --- */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.login-container {
+    display: flex;
+    width: 850px;
+    height: 480px;
+    background: #1e1e24;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+    overflow: hidden;
+    border: 1px solid #333;
+}
+
+/* Lado izquierdo: Formulario */
+.login-form {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-form h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+}
+
+/* Inputs personalizados */
+.input-group-custom {
+    margin-bottom: 20px;
+    position: relative;
+}
+.input-group-custom label {
+    display: block;
+    font-size: 13px;
+    color: #aaa;
+    margin-bottom: 5px;
+}
+.input-group-custom input {
+    width: 100%;
+    padding: 10px 0;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #555;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    transition: 0.3s;
+}
+.input-group-custom input:focus {
+    border-bottom: 2px solid #ff5e00;
+}
+
+/* Botón Degradado Naranja */
+.btn-orange {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg, #ff5e00, #ff2a00);
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+.btn-orange:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(255, 94, 0, 0.4);
+    color: #fff;
+}
+
+/* Lado derecho: Panel de Bienvenida */
+.login-welcome {
+    flex: 1;
+    background: linear-gradient(135deg, #ff5e00 0%, #8a1c00 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    text-align: center;
+    clip-path: polygon(15% 0, 100% 0, 100% 100%, 0% 100%);
+    margin-left: -50px;
+    z-index: 2;
+}
+
+.login-welcome.blue {
+    background: linear-gradient(135deg, #00d2ff 0%, #0056b3 100%);
+}
+
+.login-welcome h2 {
+    font-size: 32px;
+    margin: 0 0 10px 0;
+    line-height: 1.2;
+    color: #fff;
+}
+.login-welcome p {
+    font-size: 14px;
+    color: #ffe0d0;
+}
+
+/* --- ESTILOS PARA LA TABLA (AGENDA) --- */
+.card-custom {
+    background-color: #1e1e24;
+    border: 1px solid #333;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+.table-dark {
+    background-color: #1e1e24;
+    color: #ddd;
+}
+.table-dark th {
+    background-color: #2a2a35;
+    color: #ff5e00;
+    border-color: #333;
+}
+.table-dark td {
+    border-color: #333;
+    vertical-align: middle;
+}
+.form-control-custom, .form-select-custom {
+    background-color: #2a2a35;
+    border: 1px solid #444;
+    color: #fff;
+}
+.form-control-custom:focus, .form-select-custom:focus {
+    background-color: #333;
+    color: #fff;
+    border-color: #ff5e00;
+    box-shadow: none;
+}
+
+/*  barra de búsqueda */
+.form-control-custom, .form-select-custom {
+    background-color: #2a2a35 !important;
+    border: 1px solid #555 !important;
+    color: #ffffff !important; /* Texto blanco */
+}
+
+/* Color del texto */
+.form-control-custom::placeholder {
+    color: #a0a0a0 !important; /* Gris claro para que se lea bien */
+    opacity: 1; 
+}
+
+/* Efecto cuando se hace clic en el input (se pone naranja) */
+.form-control-custom:focus, .form-select-custom:focus {
+    background-color: #333 !important;
+    border-color: #ff5e00 !important;
+    box-shadow: 0 0 8px rgba(255, 94, 0, 0.5) !important;
+}
+
+/* --- Medidor de Contraseña --- */
+.password-strength-meter {
+    width: 100%;
+    background-color: #333; /* Color del riel de fondo */
+    border-radius: 3px;
+    height: 6px;
+    overflow: hidden;
+}
+
+/* Evitar que el navegador pinte el texto de azul al hacer clic */
+#strength-text {
+    user-select: none; /* Evita que se seleccione el texto sin querer */
+    text-shadow: 0px 1px 2px rgba(0,0,0,0.8); /* Sombra para que resalte en fondos oscuros */
+    letter-spacing: 0.5px;
+}
