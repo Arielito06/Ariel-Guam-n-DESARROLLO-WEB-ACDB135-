@@ -1,7 +1,8 @@
 <?php
+// Conexión a la base de datos en localhost
 $servidor = "localhost";
 $usuario = "root";
-$password = ""; 
+$password = "";
 $base_datos = "agenda_contactos";
 
 $conexion = new mysqli($servidor, $usuario, $password, $base_datos);

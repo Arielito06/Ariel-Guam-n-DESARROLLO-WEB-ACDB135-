@@ -1,45 +1,55 @@
-# Práctica: Agenda Personal de Contactos con PHP y MySQL
+# Agenda Personal de Contactos (PHP + MySQL)
 
-**Asignatura:** Desarrollo Web (ACD y APE) - 5to Ciclo TI
-**Universidad:** Universidad Técnica Particular de Loja (UTPL)
-**Requisitos:** XAMPP (Apache y MySQL), Navegador web, VS Code. 
+Aplicación web desarrollada en PHP y MySQL para la gestión de contactos personales, con inicio de sesión, aislamiento de información por usuario, búsqueda, ordenamiento, categorías, contactos favoritos y despliegue en un hosting gratuito.
 
-## Propósito
-Desarrollar una aplicación web interactiva con autenticación de usuarios. El sistema permite registrar, iniciar sesión y gestionar una agenda personal de contactos. Se aplican buenas prácticas de seguridad como lo es la encriptación de contraseñas y protección de datos por usuario y se implementan mejoras de usabilidad como búsqueda, ordenamiento y favoritos.
+## 1. URL Pública
+- **Enlace de la aplicación en línea:** (http://agenda-contactos-arielutpl.infinityfree.io/login.php)
+## 2. Capturas de Pantalla
+### Inicio de Sesión y Registro
+![Inicio de Sesión y Registro](img/Inicio%20de%20Sesion_Registro.jpeg)
 
-## ¿Cómo ejecutarlo?
-1. Descargar el repositorio y colocar la carpeta del proyecto dentro de `C:\xampp\htdocs\`.
-2. Abrir XAMPP y encender los módulos **Apache** y **MySQL**.
-3. Abrir el navegador e ir a `http://localhost/phpmyadmin/`.
-4. Crear una base de datos llamada **`agenda_contactos`** e importar el archivo `.sql` incluido en el repositorio.
-5. Abrir el navegador e ingresar al sistema en: `http://localhost/NombreDeTuCarpeta/login.php`.
+### Agenda Principal (Búsqueda, Categorías, Ordenamiento y Favoritos)
+![Agenda Principal](img/Agenda%20principal.jpeg)
 
-## Funcionalidades Desarrolladas 
-1. **Autenticación Segura:** Registro e inicio de sesión. Las contraseñas se guardan encriptadas usando `password_hash()` y se validan con `password_verify()`. Incluye medidor de fuerza de contraseña.
-2. **CRUD de Contactos:** Agregar, editar y eliminar contactos con validaciones de formulario (ej. el teléfono exige exactamente 10 dígitos).
-3. **Privacidad de Datos:** Cada contacto nuevo recibe un `id_usuario`. El sistema filtra las consultas SQL para que un usuario solo vea y modifique sus propios contactos, bloqueando accesos por URL.
-4. **Mejoras de Usabilidad :** 
-   * Búsqueda dinámica por nombre, correo o ciudad.
-   * Ordenamiento alfabético y por fecha.
-   * Sistema de "Favoritos" representado por una estrella ⭐con filtro exclusivo.
-5. **Recuperación de Clave:** Opción en el Login para restablecer la contraseña en caso de olvido.
+### Editar y Agregar Contacto con Categoría y Favorito
+![Editar Contacto](img/Editar%20Contacto.jpeg)
 
-## Preguntas de cierre 
+### Base de Datos - Tabla de Categorías (phpMyAdmin)
+![Tabla Categorías](img/BD_Tabla_Categoria.jpeg)
 
-**1. ¿Por qué es importante usar `password_hash()` y no guardar la contraseña en texto plano?**
-*   **Respuesta:** Porque `password_hash()` convierte la contraseña en un "hash" irreversible usando algoritmos seguros como Bcrypt. Si un hacker lograra acceder a la base de datos, solo vería códigos extraños (como `$2y$10$...`) y no las contraseñas reales. Además, guardar en texto plano es una vulnerabilidad crítica porque los usuarios suelen reutilizar sus contraseñas en otras plataformas (correo, redes sociales).
+### Base de Datos - Tabla de Contactos (phpMyAdmin)
+![Tabla Contactos](img/BD_Tabla_Contactos.jpeg)
 
-**2. ¿Cómo ayuda la columna `id_usuario` en la tabla de contactos a garantizar la privacidad entre diferentes usuarios?**
-*   **Respuesta:** Funciona como un candado de pertenencia. Al guardar un contacto, se le asigna el `id_usuario` de la persona que inició sesión. Cuando cualquier usuario entra a su agenda, el sistema hace una consulta filtrada (`WHERE id_usuario = ?`). De esta forma, la base de datos solo le devuelve los contactos cuyo dueño coincide con su ID, aislando la información por completo.
+### Base de Datos - Tabla de Usuarios (phpMyAdmin)
+![Tabla Usuarios](img/BD_Tabla_Usuarios.jpeg)
 
-**3. ¿Por qué usamos sentencias preparadas (`bind_param`) en las consultas a la base de datos?**
-*   **Respuesta:** Para prevenir ataques de **Inyección SQL**. Al usar `bind_param`, separamos el código SQL de los datos que ingresa el usuario. Si alguien intenta escribir código malicioso (como `' OR 1=1 --`) en un formulario, el sistema lo tratará como texto simple y no como un comando ejecutable, protegiendo la base de datos.
+## 3. Tecnologías Utilizadas
+- **Lenguaje de programación (Backend — PHP):** Se utiliza PHP en el lado del servidor para procesar formularios, administrar sesiones de usuario (`$_SESSION` y `session_regenerate_id`), aislar los contactos de cada cuenta y controlar la lógica de negocio. La comunicación con la base de datos se realiza mediante la extensión `mysqli` con consultas preparadas (`prepare` y `bind_param`) para prevenir inyección SQL, junto con `password_hash()` y `password_verify()` para almacenar y comprobar contraseñas de forma segura.
+- **Base de datos (MySQL / MariaDB — `agenda_contactos`):** Almacena de manera estructurada los usuarios, los contactos y las categorías (*Familia, Amigos, Trabajo, Universidad, Otro*), relacionando los contactos con su propietario (`id_usuario`) y con su categoría (`categoria_id`) mediante claves y consultas `JOIN` para listar, filtrar, buscar y ordenar la información.
+- **Frontend (HTML5, CSS3 y Bootstrap 5):** Construye las vistas y formularios de inicio de sesión, registro, agenda principal, creación y edición de contactos, y cambio de contraseña. Combina componentes de Bootstrap 5 (tablas, formularios, alertas y botones) con estilos personalizados en `estilos.css` para lograr una interfaz oscura y ordenada.
+- **Entorno local y despliegue (XAMPP y Hosting Gratuito):** Durante el desarrollo y las pruebas iniciales se emplea XAMPP (`Apache` y `MySQL` en `localhost`) junto con `phpMyAdmin` para gestionar y exportar la base de datos (`agenda_contactos.sql`). Para la publicación en línea, el proyecto y la base de datos importada se alojan en un servicio de hosting gratuito accessible mediante URL pública.
 
-**4. ¿Qué sucedería si un usuario intenta cambiar el ID en la URL para editar un contacto ajeno?**
-*   **Respuesta:** El sistema lo bloqueará. En el archivo `editar_contacto.php` o `borrar_contacto.php`, la consulta SQL exige que el contacto coincida tanto con el `id` de la URL como con el `id_usuario` de la sesión (`WHERE id = ? AND id_usuario = ?`). Si el dueño no coincide, la base de datos no encuentra el registro y el sistema expulsa al usuario, redirigiéndolo automáticamente a su propia agenda.
+## 4. Instrucciones para Instalar el Proyecto Localmente
+1. Clonar o descargar el repositorio y colocar la carpeta del proyecto dentro del directorio raíz de tu servidor local (por ejemplo, en `htdocs` si utilizas XAMPP).
+2. Abrir el panel de control de XAMPP e iniciar los servicios **Apache** y **MySQL**.
+3. Acceder a `phpMyAdmin` (`http://localhost/phpmyadmin`), crear la base de datos `agenda_contactos` e importar el archivo `agenda_contactos.sql` incluido en el repositorio.
+4. Verificar que el archivo `conexion.php` tenga configurados los parámetros locales (`localhost`, usuario `root`, contraseña vacía y base de datos `agenda_contactos`).
+5. Abrir el navegador y visitar `http://localhost/tu_carpeta/login.php` para iniciar sesión o crear una cuenta.
 
-## Entregable
-Repositorio de GitHub con el código actualizado, el script SQL de la base de datos y este archivo README.
+## 5. Mejoras y Correcciones realizadas respecto a la primera versión
 
+### Mejoras Funcionales Implementadas
+- **Categorías de contactos:** se creó la tabla `categorias` con las opciones *Familia*, *Amigos*, *Trabajo*, *Universidad* y *Otro*, vinculada a `contactos` mediante `categoria_id`, permitiendo asignar categorías al crear o editar contactos y filtrar por categoría en `agenda.php`.
+- **Búsqueda de contactos:** filtro por nombre, correo electrónico o ciudad mediante consultas preparadas con `LIKE`.
+- **Ordenamiento de contactos:** ordenamiento por nombre (A-Z / Z-A), ciudad (A-Z) y fecha de creación.
+- **Contactos favoritos:** posibilidad de marcar/desmarcar contactos como favoritos y filtrar para mostrar únicamente los favoritos.
+- **Despliegue en hosting gratuito:** publicación de la aplicación y su base de datos en un servicio de hosting gratuito accesible mediante enlace público.
+
+### Correcciones de Seguridad y Validación mediante las oberservaciones de mi primer entregable.
+- **Registro de usuarios (`guardar_usuario.php`):** se incorporó validación del formato de correo electrónico mediante `FILTER_VALIDATE_EMAIL` y verificación previa para evitar registros con correos duplicados.
+- **Gestión de sesiones (`login.php`):** se añadió `session_regenerate_id(true)` inmediatamente después de autenticar al usuario para reforzar la seguridad de la sesión.
+- **Validación en contactos (`guardar_contacto.php` y `actualizar_contacto.php`):** se reemplazó `FILTER_SANITIZE_EMAIL` por `FILTER_VALIDATE_EMAIL` y se agregaron validaciones de campos obligatorios en el servidor.
+- **Eliminación de contactos (`borrar_contacto.php` y `agenda.php`):** se cambió la eliminación de `GET` a `POST` mediante formulario con confirmación previa en JavaScript.
+- **Recuperación / cambio de contraseña (`recuperar_password.php`):** se corrigió el flujo para exigir verificación de identidad (comprobando la contraseña actual del usuario) antes de actualizar a una nueva contraseña.
 ---
 *Desarrollado por Ariel Anthony Guamán Castillo - 2026*

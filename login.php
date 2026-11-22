@@ -9,26 +9,32 @@ if (isset($_SESSION['usuario_id'])) {
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $correo = filter_var($_POST['correo'], FILTER_SANITIZE_EMAIL);
-    $password = $_POST['password'];
+    //  Realice esta corrección pata validar el formato de correo electrónico
+    $correo = filter_var(trim($_POST['correo'] ?? ''), FILTER_VALIDATE_EMAIL);
+    $password = $_POST['password'] ?? '';
 
-    // Agregamos 'correo' al SELECT para que la sesión lo pueda guardar
-    $stmt = $conexion->prepare("SELECT id, nombre, correo, password FROM usuarios WHERE correo = ?");
-    $stmt->bind_param("s", $correo);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
+    if ($correo) {
+        $stmt = $conexion->prepare("SELECT id, nombre, correo, password FROM usuarios WHERE correo = ? LIMIT 1");
+        $stmt->bind_param("s", $correo);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
 
-    if ($fila = $resultado->fetch_assoc()) {
-        if (password_verify($password, $fila['password'])) {
-            $_SESSION['usuario_id'] = $fila['id'];
-            $_SESSION['usuario_nombre'] = $fila['nombre'];
-            $_SESSION['usuario_correo'] = $fila['correo'];
-            header("Location: agenda.php");
-            exit;
+        if ($fila = $resultado->fetch_assoc()) {
+            if (password_verify($password, $fila['password'])) {
+                // Se  regenera el ID de sesión tras iniciar sesión
+                session_regenerate_id(true);
+
+                $_SESSION['usuario_id'] = $fila['id'];
+                $_SESSION['usuario_nombre'] = $fila['nombre'];
+                $_SESSION['usuario_correo'] = $fila['correo'];
+                header("Location: agenda.php");
+                exit;
+            }
         }
+        $stmt->close();
     }
+
     $error = 'Correo o contraseña incorrectos.';
-    $stmt->close();
 }
 $conexion->close();
 ?>

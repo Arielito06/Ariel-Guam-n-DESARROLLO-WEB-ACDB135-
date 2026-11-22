@@ -2,89 +2,90 @@
 session_start();
 require 'conexion.php';
 
-$error = '';
-$exito = '';
+$mensaje = '';
+$tipo_alerta = 'danger';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $correo = filter_var($_POST['correo'], FILTER_SANITIZE_EMAIL);
-    $nueva = $_POST['password'];
-    $confirmar = $_POST['confirmar'];
+    // Corregi esta parte para que se pueda validar el formato del correo
+    $correo = filter_var(trim($_POST['correo'] ?? ''), FILTER_VALIDATE_EMAIL);
 
-    // Verificara si el correo existe en la base de datos
-    $stmt = $conexion->prepare("SELECT id FROM usuarios WHERE correo = ?");
-    $stmt->bind_param("s", $correo);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
+    // Corregí esta parte Exigir al usuario lacontraseña actual con el fin de verificar identidad antes del cambio
+    $password_actual = $_POST['password_actual'] ?? '';
+    $password_nueva  = $_POST['password_nueva'] ?? '';
 
-    if ($resultado->num_rows === 0) {
-        $error = "El correo electrónico no está registrado.";
-    } elseif ($nueva !== $confirmar) {
-        $error = "Las contraseñas no coinciden.";
-    } elseif (strlen($nueva) < 8 || !preg_match('/[A-Z]/', $nueva) || !preg_match('/[a-z]/', $nueva) || !preg_match('/[0-9]/', $nueva)) {
-        $error = "La nueva contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número.";
+    $tieneMayuscula = preg_match('/[A-Z]/', $password_nueva);
+    $tieneMinuscula = preg_match('/[a-z]/', $password_nueva);
+    $tieneNumero    = preg_match('/[0-9]/', $password_nueva);
+
+    if (!$correo) {
+        $mensaje = 'Ingresa un correo electrónico válido.';
+    } elseif (strlen($password_nueva) < 8 || !$tieneMayuscula || !$tieneMinuscula || !$tieneNumero) {
+        $mensaje = 'La nueva contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número.';
     } else {
-        // Encripta la nueva contraseña y actualizarla
-        $nuevo_hash = password_hash($nueva, PASSWORD_DEFAULT);
-        $stmt_update = $conexion->prepare("UPDATE usuarios SET password = ? WHERE correo = ?");
-        $stmt_update->bind_param("ss", $nuevo_hash, $correo);
-        
-        if ($stmt_update->execute()) {
-            $exito = "¡Contraseña restablecida con éxito! Ya puedes iniciar sesión.";
+        $stmt = $conexion->prepare("SELECT id, password FROM usuarios WHERE correo = ? LIMIT 1");
+        $stmt->bind_param("s", $correo);
+        $stmt->execute();
+        $usuario = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        // El cambio de contraseña funcionara si se verifica la identidad con password_verify
+        if ($usuario && password_verify($password_actual, $usuario['password'])) {
+            $nuevo_hash = password_hash($password_nueva, PASSWORD_DEFAULT);
+            $upd = $conexion->prepare("UPDATE usuarios SET password = ? WHERE id = ?");
+            $upd->bind_param("si", $nuevo_hash, $usuario['id']);
+
+            if ($upd->execute()) {
+                $mensaje = 'Contraseña actualizada correctamente. Ya puedes iniciar sesión.';
+                $tipo_alerta = 'success';
+            } else {
+                $mensaje = 'No se pudo actualizar la contraseña.';
+            }
+            $upd->close();
         } else {
-            $error = "Error al actualizar la contraseña.";
+            $mensaje = 'No se pudo verificar la identidad con los datos proporcionados.';
         }
-        $stmt_update->close();
     }
-    $stmt->close();
 }
+$conexion->close();
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Recuperar Contraseña</title>
+    <title>Recuperar / Cambiar Contraseña</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="estilos.css">
 </head>
-<body class="login-body">
-    <div class="login-container">
-        <div class="login-form">
-            <h2>Recuperar Clave</h2>
-            
-            <?php if ($error): ?>
-                <div class="alert alert-danger text-center p-2"><?= htmlspecialchars($error) ?></div>
-            <?php endif; ?>
-            
-            <?php if ($exito): ?>
-                <div class="alert alert-success text-center p-2"><?= htmlspecialchars($exito) ?></div>
-                <div class="text-center mt-3">
-                    <a href="login.php" class="btn-orange" style="text-decoration: none;">Ir al Login</a>
+<body class="d-flex align-items-center" style="min-height: 100vh;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card-custom p-4">
+                    <h3 class="mb-3" style="color: #ff5e00;">Cambiar Contraseña</h3>
+                    <p class="small text-light">Por seguridad, confirma tu identidad ingresando tu contraseña actual.</p>
+
+                    <?php if ($mensaje): ?>
+                        <div class="alert alert-<?= $tipo_alerta ?> p-2"><?= htmlspecialchars($mensaje) ?></div>
+                    <?php endif; ?>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label>Correo Electrónico</label>
+                            <input type="email" name="correo" class="form-control form-control-custom" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Contraseña Actual</label>
+                            <input type="password" name="password_actual" class="form-control form-control-custom" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Nueva Contraseña</label>
+                            <input type="password" name="password_nueva" class="form-control form-control-custom" required>
+                        </div>
+                        <button type="submit" class="btn-orange">Actualizar Contraseña</button>
+                        <a href="login.php" class="btn btn-secondary w-100 mt-2">Volver al Login</a>
+                    </form>
                 </div>
-            <?php else: ?>
-                <form method="POST">
-                    <div class="input-group-custom">
-                        <label>Correo Electrónico</label>
-                        <input type="email" name="correo" required autofocus>
-                    </div>
-                    <div class="input-group-custom">
-                        <label>Nueva Contraseña</label>
-                        <input type="password" name="password" required minlength="8">
-                    </div>
-                    <div class="input-group-custom">
-                        <label>Confirmar Nueva Contraseña</label>
-                        <input type="password" name="confirmar" required minlength="8">
-                    </div>
-                    <button type="submit" class="btn-orange">Restablecer Clave</button>
-                    <div class="text-center mt-3">
-                        <a href="login.php" style="color: #aaa; text-decoration: none; font-size: 13px;">Volver al Login</a>
-                    </div>
-                </form>
-            <?php endif; ?>
-        </div>
-        
-        <div class="login-welcome" style="background: linear-gradient(135deg, #b900ff 0%, #5e008a 100%);">
-            <h2>DON'T<br>WORRY!</h2>
-            <p>Enter your email and set a new password. It happens to the best of us.</p>
+            </div>
         </div>
     </div>
 </body>
