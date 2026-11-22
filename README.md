@@ -9,7 +9,7 @@ Aplicación web desarrollada en PHP y MySQL para la gestión de contactos person
 ![Inicio de Sesión y Registro](img/Inicio%20de%20Sesion_Registro.jpeg)
 
 ### Agenda Principal (Búsqueda, Categorías, Ordenamiento y Favoritos)
-![Agenda Principal](img/agenda_principal.jpeg)
+![Agenda Principal](img/Agenda%20principal%20.jpeg)
 
 ### Editar y Agregar Contacto con Categoría y Favorito
 ![Editar Contacto](img/Editar%20Contacto.jpeg)
